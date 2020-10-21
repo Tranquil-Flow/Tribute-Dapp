@@ -1,15 +1,32 @@
-// SPDX-License-Identifier: <SPDX-License>
 pragma solidity ^0.6.0;
 
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 
-contract TributeVoter is ERC20 {
+  contract TributeVoter is ERC20, Ownable {
+    using SafeMath for uint;
 
-    constructor(string memory _name, string memory _symbol, uint256 _initialSupply)
+  mapping (address => bool) public minters;
+
+    constructor()
         public
-        ERC20(_name, _symbol)
+        ERC20("TributeVoter", "TVOTER")
     {
-        _mint(msg.sender, _initialSupply);
-    }
-}
+        addMinter(msg.sender);
+        mint(msg.sender, 100000000000000000000000);
+  }
+ 
+  function mint(address account, uint256 amount) public {
+      require(minters[msg.sender], "!minter");
+      _mint(account, amount);
+  }
+ 
+  function addMinter(address _minter) public onlyOwner {
+      minters[_minter] = true;
+  }
+
+  function removeMinter(address _minter) public onlyOwner {
+      minters[_minter] = false;
+  }
+  
+  }
